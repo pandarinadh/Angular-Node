@@ -1,0 +1,21 @@
+1 Go to https://github.com/joeeames/AngularFundamentalsFiles
+download DemoApp.zip
+2 . unzup demoapp, place them in the directory
+3. goto directory in git bash then type below command to install node
+4. npm install express@4.13.0 body-parser@1.13.1
+5. develop web-server.js under script with below code 
+var express = require('express');
+var path = require('path');
+var app = express();
+var rootpath = path.normalize(__dirname + '/../');
+
+app.use(express.static(rootpath + '/app'));
+
+app.listen(8000);
+console.log('listening on port 8000 ...');
+
+6.on git bash bast server.sh
+to start the server 
+
+type .\server.bat in terminal they type in browser like this
+http://localhost:8000/eventdetails.html
