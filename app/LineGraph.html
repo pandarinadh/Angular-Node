@@ -33,8 +33,21 @@
                 </ul>
             </div>
             <div ng-controller="LineGraphController" style="background-color: white">
-                    <svg id="visualisation" width="1000" height="500"></svg>
-                        <br/>
+
+                    <div  class="row" style=" border-width: thin;">
+                        <div class="col-lg-4" style="text-align: center; border-width: thin;">
+                                <hr style="width:100px; text-align: center"> 
+                        </div>
+                </div>   <br/>
+                <div class="row">
+                        
+                    <div class="col-lg-4">
+                        <svg id="visualisation" width="1000" height="500"></svg>
+                    </div>
+                   
+                </div>    
+                <br>
+
                     <div class="btn btn-default" ng-click="drawChart1()">
                         Draw Graph
                     </div>
