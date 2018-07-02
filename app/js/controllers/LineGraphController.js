@@ -1,16 +1,16 @@
 //'use strict';
-angular.element(document).ready(function() {
+
 
 eventsApp.controller('LineGraphController', function LineGraphController($scope)
 {
     $scope.graph = {
         'width': 600,
         'height': 300,
-        MARGINS: {
+        margin: {
             top: 20,
             right: 20,
-            bottom: 20,
-            left: 50
+            bottom: 50,
+            left: 70
           }
     };
     
@@ -67,50 +67,71 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
 
     $scope.chartPoints.push($scope.points);
 
-    var vis = d3.select('#visualisation'),
-    x = d3.scale.linear().range([ $scope.graph.MARGINS.left, $scope.graph.width - $scope.graph.MARGINS.right]);  
-    y = d3.scale.linear().range([$scope.graph.height - $scope.graph.MARGINS.bottom, $scope.graph.MARGINS.top]);
+
     
-    x.domain(d3.extent($scope.points, function(d) {return d.x}));  
-    y.domain(d3.extent($scope.points, function(d) {return d.y}));
+ angular.element(document).ready(function () {
+    $scope.drawChart1();
+});
+
+
+    $scope.drawChart1 = function(){
+        var vis = d3.select('#visualisation'),
+        x = d3.scale.linear().range([ $scope.graph.margin.left, $scope.graph.width - $scope.graph.margin.right]);  
+        y = d3.scale.linear().range([$scope.graph.height - $scope.graph.margin.bottom, $scope.graph.margin.top]);
+        
+        x.domain(d3.extent($scope.points, function(d) {return d.x}));  
+        y.domain(d3.extent($scope.points, function(d) {return d.y}));
+        
+        $scope.lineFunc = d3.svg.line()
+          .x(function(d) {return x(d.x);})
+          .y(function(d) {return y(d.y);})
+          .interpolate('linear');
+          
     
-    $scope.lineFunc = d3.svg.line()
-      .x(function(d) {return x(d.x);})
-      .y(function(d) {return y(d.y);})
-      .interpolate('linear');
-      
+          xAxis = d3.svg.axis()
+          .scale(x)
+          .tickSize(2)
+          .tickSubdivide(true),
+        yAxis = d3.svg.axis()
+          .scale(y)
+          .tickSize(2)
+          .orient('left')
+          .tickSubdivide(true);
+    
+          vis.append('svg:g')
+      .attr('class', 'x axis')
+      .attr('transform', 'translate(0,' + ($scope.graph.height - $scope.graph.margin.bottom) + ')')
+       .call(xAxis);
+    
+       vis.append("svg:g:text")             
+      .attr("transform",
+            "translate(" + ($scope.graph.width/2) + " ," + 
+                           ($scope.graph.height) + ")")
+      .style("text-anchor", "middle")
+      .text("Date");
 
-      xAxis = d3.svg.axis()
-      .scale(x)
-      .tickSize(2)
-      .tickSubdivide(true),
-    yAxis = d3.svg.axis()
-      .scale(y)
-      .tickSize(2)
-      .orient('left')
-      .tickSubdivide(true);
+    vis.append('svg:g')
+      .attr('class', 'y axis')
+      .attr('transform', 'translate(' + ($scope.graph.margin.left) + ',0)')
+      .call(yAxis);
+    
+      vis.append("svg:g:text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 20)
+      .attr("x",0 - ($scope.graph.height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Value");      
 
-      vis.append('svg:g')
-  .attr('class', 'x axis')
-  .attr('transform', 'translate(0,' + ($scope.graph.height - $scope.graph.MARGINS.bottom) + ')')
-   .call(xAxis);
-
-vis.append('svg:g')
-  .attr('class', 'y axis')
-  .attr("dy", "0.51em")
-  .attr("text-anchor", "end")
-  .text("Price ($)")
-  .attr('transform', 'translate(' + ($scope.graph.MARGINS.left) + ',0)')
-  .call(yAxis);
-
- $scope.chartPoints.forEach(function(l) {
-    vis.append('svg:path')
-    .attr('d', $scope.lineFunc(l.points ? l.points : []))
-    .attr('stroke', l.color)
-    .attr('stroke-width', 2)
-    .attr('fill', 'none');
-  });
-
+     $scope.chartPoints.forEach(function(l) {
+        vis.append('svg:path')
+        .attr('d', $scope.lineFunc(l.points ? l.points : []))
+        .attr('stroke', l.color)
+        .attr('stroke-width', 2)
+        .attr('fill', 'none');
+      });
+    
+    
 /*
   vis.append('svg:path')
   .attr('d', $scope.lineFunc($scope.points))
@@ -118,25 +139,6 @@ vis.append('svg:g')
   .attr('stroke-width', 2)
   .attr('fill', 'none');
   */
-    
-
-    $scope.drawChart1 = function(){
-      //  var data = $scope.data;
-        var margin = { top: 20, right: 20, bottom: 30, left: 50 };
-        //var width = svgWidth - margin.left - margin.right;
-       // var height = svgHeight - margin.top - margin.bottom;
-       
-       
-       x = d3.time.scale().range([0, $scope.graph.width]);  
-       y = d3.scale.linear().range([$scope.graph.height, 0]);
-       
-       x.domain(d3.extent($scope.points, function(d) {return d.x}));  
-       y.domain(d3.extent($scope.points, function(d) {return d.y}));
-       
-       $scope.line = d3.svg.line()
-         .x(function(d) {return x(d.x);})
-         .y(function(d) {return y(d.y);});
-
 
     }
 
@@ -190,6 +192,4 @@ vis.append('svg:g')
         .attr("d", line);
 
     }
-});
-angular.bootstrap(document, ['eventsApp']);
 });
