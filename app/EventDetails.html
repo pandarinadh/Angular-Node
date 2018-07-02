@@ -20,7 +20,10 @@
         <script src='/lib/underscore-1.4.4.min.js'></script>
         <script src='/lib/bootstrap.min.js'></script>
         <script src='/lib/angular/angular.js'></script>
-        <script src="http://cdn.jsdelivr.net/d3js/3.3.9/d3.min.js"></script>
+        <!--<script src="http://cdn.jsdelivr.net/d3js/3.3.9/d3.min.js"></script>-->
+        <script src='/lib/d3.min.js'></script>
+        <script src='/js/app.js'></script>
+        
         <script src='/js/app.js'></script>
         <script src='/js/controllers/EventController.js'></script>
     </head>
@@ -32,24 +35,9 @@
                 </ul>
             </div>
             <div ng-controller="EventController">
-                    <svg ng-attr-height="{{graph.height}}" ng-attr-width="{{graph.width}}">
-                        <g>
-                            <path class="line" ng-attr-d="{{line(points)}}"></path>
-                            <text ng-repeat="data in chartPoints"
-                                    x="0"
-                                    ng-attr-y="6"
-                                    ng-attr-dy="0.71em"
-                                    ng-attr-fill="#000"
-                                    font-size="16px"
-                                    text-anchor="end"
-                                    ng-attr-transform="translate(0, 100)"
-                                    ng-bind="data.x">
-
-                                </text>
-                            </g>
-                        </svg>
+                    <svg id="visualisation" width="1000" height="500"></svg>
                         <br/>
-                    <div class="btn btn-default" ng-click="drawChart1()">
+                    <div class="btn btn-default" ng-click="drawChart()">
                         Draw Graph
                     </div>
   
