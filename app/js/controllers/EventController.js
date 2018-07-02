@@ -1,21 +1,40 @@
-'use strict';
+//'use strict';
+angular.element(document).ready(function() {
+    var app = angular.module('angularSVG', []);
 
-eventsApp.controller('EventController', function EventController($scope)
+app.controller('EventController', function EventController($scope)
 {
-    $scope.data =
+    $scope.graph = {
+        'width': 300,
+        'height': 100
+    };
+    $scope.chartPoints = [];
+    $scope.points =
     [{
-        x: 1,
-        y: 3
+        'x': 1,
+        'y': 3
     },
     {
-        x: 5,
-        y: 15
+        'x': 3,
+        'y': 5
     },
     {
-        x: 14,
-        y: 25
+        'x': 6,
+        'y': 10
     }
-    ]
+    ];
+    $scope.chartPoints.push($scope.points);
+    
+    x = d3.time.scale().range([0, $scope.graph.width]);  
+    y = d3.scale.linear().range([$scope.graph.height, 0]);
+    
+    x.domain(d3.extent($scope.points, function(d) {return d.x}));  
+    y.domain(d3.extent($scope.points, function(d) {return d.y}));
+    
+    $scope.line = d3.svg.line()
+      .x(function(d) {return x(d.x);})
+      .y(function(d) {return y(d.y);});
+
     $scope.event = {
         name: 'Angular Boot Camp',
         date: '1/1/2018',
@@ -53,6 +72,36 @@ eventsApp.controller('EventController', function EventController($scope)
         ]
     }
 
+    
+
+    $scope.drawChart1 = function(){
+      //  var data = $scope.data;
+        var margin = { top: 20, right: 20, bottom: 30, left: 50 };
+        //var width = svgWidth - margin.left - margin.right;
+       // var height = svgHeight - margin.top - margin.bottom;
+       
+       
+       x = d3.time.scale().range([0, $scope.graph.width]);  
+       y = d3.scale.linear().range([$scope.graph.height, 0]);
+       
+       x.domain(d3.extent($scope.points, function(d) {return d.x}));  
+       y.domain(d3.extent($scope.points, function(d) {return d.y}));
+       
+       $scope.line = d3.svg.line()
+         .x(function(d) {return x(d.x);})
+         .y(function(d) {return y(d.y);});
+
+
+    }
+    $scope.upVoteSession = function(sesion)
+    {
+        sesion.upVoteCount++;
+    };
+    $scope.downVoteSession = function(sesion)
+    {
+        sesion.upVoteCount--;
+    };
+
     $scope.drawChart = function(){
         var data = $scope.data;
         var svgWidth = 600, svgHeight = 400;
@@ -83,62 +132,6 @@ eventsApp.controller('EventController', function EventController($scope)
             .remove();
 
     }
-
-    $scope.drawChart1 = function(){
-        var data = $scope.data;
-        var svgWidth = 600, svgHeight = 400;
-        var margin = { top: 20, right: 20, bottom: 30, left: 50 };
-        var width = svgWidth - margin.left - margin.right;
-        var height = svgHeight - margin.top - margin.bottom;
-        var svg = d3.select('svg')
-            .attr("width", svgWidth)
-            .attr("height", svgHeight);
-
-            var g = svg.append("g")
-            .attr("transform", 
-            "translate(" + margin.left + "," + margin.top + ")");
-
-            var x = d3.scaleLinear().rangeRound([0, width]);
-            var y = d3.scaleLinear().rangeRound([height, 0]);
-            
-            var line = d3.line()
-            .x(function(d) { return x(d.x)})
-            .y(function(d) { return y(d.y)})
-            x.domain(d3.extent(data, function(d) { return d.x }));
-            y.domain(d3.extent(data, function(d) { return d.y }));
-
-            g.append("g")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x))
-            .select(".domain")
-            .remove();
-
-                        g.append("g")
-            .call(d3.axisLeft(y))
-            .append("text")
-            .attr("fill", "#000")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", "0.71em")
-            .attr("text-anchor", "end")
-            .text("Price ($)");
-
-                    g.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-linejoin", "round")
-        .attr("stroke-linecap", "round")
-        .attr("stroke-width", 1.5)
-        .attr("d", line);
-
-    }
-    $scope.upVoteSession = function(sesion)
-    {
-        sesion.upVoteCount++;
-    };
-    $scope.downVoteSession = function(sesion)
-    {
-        sesion.upVoteCount--;
-    };
+});
+angular.bootstrap(document, ['angularSVG']);
 });
