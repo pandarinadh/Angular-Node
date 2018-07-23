@@ -74,7 +74,7 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
                     },
                      {
                          'x': 15,
-                         'y': 410
+                         'y': 510
                      }
               ]
           },
@@ -108,7 +108,7 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
                     },
                      {
                          'x': 15,
-                         'y': 446
+                         'y': 476
                      }
               ]
           }
@@ -120,8 +120,12 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
 
     
  angular.element(document).ready(function () {
+    //$scope.drawChart1();
+
     $scope.drawChart1();
 });
+
+
 
 
     $scope.drawChart1 = function(){
@@ -129,11 +133,21 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
         var x = d3.scale.linear().range([ $scope.graph.margin.left, $scope.graph.width - $scope.graph.margin.right]);  
         var y = d3.scale.linear().range([$scope.graph.height - $scope.graph.margin.bottom, $scope.graph.margin.top]);
 
-        $scope.chartPoints.forEach(function(l) {
-            var myData = l.points ? l.points : [];
-            x.domain(d3.extent(myData, function(d) {return d.x}));  
-            y.domain(d3.extent(myData, function(d) {return d.y}));
-        });
+
+            //x.domain(d3.extent(myData, function(d) {return d.x}));  
+            //y.domain(d3.extent(myData, function(d) {return d.y}));
+
+            x.domain([
+                d3.min($scope.chartPoints, function(c){return d3.min(c.points, function(v){return v.x})}),
+                d3.max($scope.chartPoints, function(c){return d3.max(c.points, function(v){return v.x})}),
+
+            ])
+
+            y.domain([
+                d3.min($scope.chartPoints, function(c){return d3.min(c.points, function(v){return v.y})}),
+                d3.max($scope.chartPoints, function(c){return d3.max(c.points, function(v){return v.y})}),
+
+            ])
 
         $scope.lineFunc = d3.svg.line()
           .x(function(d) {return x(d.x);})
@@ -179,38 +193,7 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
       .style("text-anchor", "middle")
       .text("Return to Date");      
 
-      var focus = vis.append('g')
-  .attr('class', 'focus')
-  .style('display', 'none');
-focus.append('circle').attr('r', 4.5);
-focus.append('text').attr('x', 9).attr('dy', '0.35em');
-
-
-
-
-vis.append('rect')
-.attr('class', 'overlay')
-.style('fill', 'none')
-.style('pointer-events', 'all')
-.attr('width', $scope.graph.width)
-.attr('height', $scope.graph.height)
-.on('mouseover', ()=> focus.style('display', 'block'))
-.on('mouseleave', () =>  focus.style('display', 'none'))
-.on('mousemove', function () { 
-    var temp = $scope.chartPoints[0];
-    var data = temp.points;
-  var x0 = x.invert(d3.mouse(this)[0]);
-
-  var i = d3.bisector(d=>d.x).left(data , x0, 1);
-  var d0 = data[i - 1];
-  var d1 = data[i];
-  var d = x0 - d0.x > d1.x - x0 ? d1 : d0;
-
-  focus.attr("transform", `translate(${x(d.x)}, ${y(d.y)})`);
-  focus.select("text").text(d.y);
-});
-
-
+      
      $scope.chartPoints.forEach(function(l) {
 
         var data = l.points ? l.points : [];
@@ -221,7 +204,35 @@ vis.append('rect')
         .attr('stroke-width', 2)
         .attr('fill', 'none')
       
-        
+        var focus = vis.append('g')
+        .attr('class', 'focus')
+        .style('display', 'none');
+      focus.append('circle').attr('r', 4.5);
+      focus.append('text').attr('x', 9).attr('dy', '0.35em');
+
+        vis.append('rect')
+.attr('class', 'overlay')
+.style('fill', 'none')
+.style('pointer-events', 'all')
+.attr('width', $scope.graph.width)
+.attr('height', $scope.graph.height)
+.on('mouseover', ()=> focus.style('display', 'block'))
+.on('mouseleave', () =>  focus.style('display', 'none'))
+.on('mousemove', function () { 
+    var myLine = d3.mouse(this);
+    //var myLine = d3.select(this);
+
+
+  var x0 = x.invert(myLine[0]);
+
+  var i = d3.bisector(d=>d.x).left(data , x0, 1);
+  var d0 = data[i - 1];
+  var d1 = data[i];
+  var d = x0 - d0.x > d1.x - x0 ? d1 : d0;
+
+  focus.attr("transform", `translate(${x(d.x)}, ${y(d.y)})`);
+  focus.select("text").text(d.y);
+});
       
       });
     
@@ -235,7 +246,118 @@ vis.append('rect')
   */
 
     }
-
+    $scope.mainChart = function(){
+        $scope.chartPoints.forEach(function(l) {
+            var data = l.points ? l.points : [];
+            var vis = d3.select('#visualisation');
+            $scope.drawChart1(vis, data)
+        });
+    
+    }
+    
+    $scope.drawChart3 = function(vis, myData){
+           
+        var x = d3.scale.linear().range([ $scope.graph.margin.left, $scope.graph.width - $scope.graph.margin.right]);  
+        var y = d3.scale.linear().range([$scope.graph.height - $scope.graph.margin.bottom, $scope.graph.margin.top]);
+    
+       
+            x.domain(d3.extent(myData, function(d) {return d.x}));  
+            y.domain(d3.extent(myData, function(d) {return d.y}));
+       
+        $scope.lineFunc = d3.svg.line()
+          .x(function(d) {return x(d.x);})
+          .y(function(d) {return y(d.y);})
+          .interpolate('linear');
+          
+          var y_max = x.domain().slice(-1)[0]
+    
+          xAxis = d3.svg.axis()
+          .scale(x)
+          .tickValues(d3.range(1,y_max+1,2))
+          .tickSize(2)
+          .tickSubdivide(2);
+    
+        yAxis = d3.svg.axis()
+          .scale(y)
+          .tickSize(2)
+          .orient('left')
+          .tickSubdivide(true);
+    
+          vis.append('svg:g')
+      .attr('class', 'x axis')
+      .attr('transform', 'translate(0,' + ($scope.graph.height - $scope.graph.margin.bottom) + ')')
+       .call(xAxis);
+    
+       vis.append("svg:g:text")             
+      .attr("transform",
+            "translate(" + ($scope.graph.width/2) + " ," + 
+                           ($scope.graph.height) + ")")
+      .style("text-anchor", "middle")
+      .text("Days out");
+    
+    vis.append('svg:g')
+      .attr('class', 'y axis')
+      .attr('transform', 'translate(' + ($scope.graph.margin.left) + ',0)')
+      .call(yAxis);
+    
+      vis.append("svg:g:text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 20)
+      .attr("x",0 - ($scope.graph.height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Return to Date");      
+    
+      var focus = vis.append('g')
+    .attr('class', 'focus')
+    .style('display', 'none');
+    focus.append('circle').attr('r', 4.5);
+    focus.append('text').attr('x', 9).attr('dy', '0.35em');
+    
+    
+    
+    
+    vis.append('rect')
+    .attr('class', 'overlay')
+    .style('fill', 'none')
+    .style('pointer-events', 'all')
+    .attr('width', $scope.graph.width)
+    .attr('height', $scope.graph.height)
+    .on('mouseover', ()=> focus.style('display', 'block'))
+    .on('mouseleave', () =>  focus.style('display', 'none'))
+    .on('mousemove', function () { 
+    
+    var x0 = x.invert(d3.mouse(this)[1]);
+    
+    var i = d3.bisector(d=>d.x).left(myData , x0, 1);
+    var d0 = myData[i - 1];
+    var d1 = myData[i];
+    var d = x0 - d0.x > d1.x - x0 ? d1 : d0;
+    
+    focus.attr("transform", `translate(${x(d.x)}, ${y(d.y)})`);
+    focus.select("text").text(d.y);
+    });
+    
+    
+    
+    
+        vis.append('svg:path')
+        .attr('d', $scope.lineFunc(myData))
+        .attr('stroke', l.color)
+        .attr('stroke-width', 2)
+        .attr('fill', 'none')
+    
+    
+    /*
+    vis.append('svg:path')
+    .attr('d', $scope.lineFunc($scope.points))
+    .attr('stroke', 'blue')
+    .attr('stroke-width', 2)
+    .attr('fill', 'none');
+    */
+    
+    }
+    
 
     $scope.drawChart = function(){
         var data = $scope.points;
