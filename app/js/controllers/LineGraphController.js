@@ -193,49 +193,56 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
       .style("text-anchor", "middle")
       .text("Return to Date");      
 
-      
-     $scope.chartPoints.forEach(function(l) {
-
-        var data = l.points ? l.points : [];
-
-        vis.append('svg:path')
-        .attr('d', $scope.lineFunc(data))
-        .attr('stroke', l.color)
-        .attr('stroke-width', 2)
-        .attr('fill', 'none')
-      
-        var focus = vis.append('g')
-        .attr('class', 'focus')
-        .style('display', 'none');
+      var focus = vis.append('g')
+      .attr('class', 'focus')
+      .style('display', 'none');
       focus.append('circle').attr('r', 4.5);
       focus.append('text').attr('x', 9).attr('dy', '0.35em');
 
-        vis.append('rect')
-.attr('class', 'overlay')
-.style('fill', 'none')
-.style('pointer-events', 'all')
-.attr('width', $scope.graph.width)
-.attr('height', $scope.graph.height)
-.on('mouseover', ()=> focus.style('display', 'block'))
-.on('mouseleave', () =>  focus.style('display', 'none'))
-.on('mousemove', function () { 
-    var myLine = d3.mouse(this);
-    //var myLine = d3.select(this);
+      var k = 0;
+     $scope.chartPoints.forEach(function(l) {
 
+        var data = l.points ? l.points : [];
+        ++k;
 
-  var x0 = x.invert(myLine[0]);
-
-  var i = d3.bisector(d=>d.x).left(data , x0, 1);
-  var d0 = data[i - 1];
-  var d1 = data[i];
-  var d = x0 - d0.x > d1.x - x0 ? d1 : d0;
-
-  focus.attr("transform", `translate(${x(d.x)}, ${y(d.y)})`);
-  focus.select("text").text(d.y);
-});
+        vis.append('svg:path')
+        .attr('d', $scope.lineFunc(data))
+        .attr("id", "myPath" + k)
+        .attr('stroke', l.color)
+        .attr('stroke-width', 2)
+        .attr('fill', 'none')
+        .on('mouseover', ()=> focus.style('display', 'block'))
+        .on('mouseleave', () =>  focus.style('display', 'none'))
+        .on("mousemove", mMove)
+        .append("title").attr("mydata", JSON.stringify(data));
       
+       
+
       });
     
+    function mMove(){
+        var m = d3.mouse(this);
+        
+    console.log(m);
+
+    console.log(x(m[0]));
+    this.attributes["stroke"]
+
+    
+
+    var x0 = x.invert(d3.mouse(this)[0]);
+
+    var myData = JSON.parse(this.childNodes[0].attributes["mydata"].nodeValue);
+    
+    var i = d3.bisector(d=>d.x).left(myData , x0, 1);
+    var d0 = myData[i - 1];
+    var d1 = myData[i];
+    var d = x0 - d0.x > d1.x - x0 ? d1 : d0;
+    
+    focus.attr("transform", `translate(${x(d.x)}, ${y(d.y)})`);
+    focus.select("text").text(d.y);
+
+      }
     
 /*
   vis.append('svg:path')
