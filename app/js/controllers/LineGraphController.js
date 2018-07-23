@@ -17,55 +17,105 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
     $scope.points =
     [{
         'x': 1,
-        'y': 3
-    },
-    {
-        'x': 3,
-        'y': 5
-    },
-    {
-        'x': 10,
         'y': 10
-    }
+    },
+                  {
+                      'x': 3,
+                      'y': 35
+                  },
+                  {
+                      'x': 7,
+                      'y': 45
+                  },
+                    {
+                        'x': 9,
+                        'y': 110
+                    },
+                    {
+                        'x': 11,
+                        'y': 210
+                    },
+                    {
+                        'x': 13,
+                        'y': 310
+                    },
+                     {
+                         'x': 15,
+                         'y': 410
+                     }
     ];
 
-    $scope.chartPoints = [
-        {
-            color :  'green',
-        points :  [{
-                'x': 1,
-                'y': 3
-            },
-            {
-                'x': 3,
-                'y': 5
-            },
-            {
-                'x': 10,
-                'y': 10
-            }
-            ]
-        },
-        {
-            color : 'blue',
-            points : [{
-                'x': 2,
-                'y': 6
-            },
-            {
-                'x': 4,
-                'y': 8
-            },
-            {
-                'x': 9,
-                'y': 10
-            }
-            ]
-        }
+        $scope.chartPoints = [
+          {
+              color: 'green',
+              points: [{
+                  'x': 1,
+                  'y': 10
+              },
+                  {
+                      'x': 3,
+                      'y': 35
+                  },
+                  {
+                      'x': 7,
+                      'y': 45
+                  },
+                    {
+                        'x': 9,
+                        'y': 110
+                    },
+                    {
+                        'x': 11,
+                        'y': 210
+                    },
+                    {
+                        'x': 13,
+                        'y': 310
+                    },
+                     {
+                         'x': 15,
+                         'y': 410
+                     }
+              ]
+          },
+          {
+              color: 'blue',
+              points: [
 
-    ];
+                  {
+                      'x': 1,
+                      'y': 44
+                  },
+                  {
+                      'x': 3,
+                      'y': 68
+                  },
+                  {
+                      'x': 7,
+                      'y': 96
+                  },
+                    {
+                        'x': 9,
+                        'y': 150
+                    },
+                    {
+                        'x': 11,
+                        'y': 242
+                    },
+                    {
+                        'x': 13,
+                        'y': 342
+                    },
+                     {
+                         'x': 15,
+                         'y': 446
+                     }
+              ]
+          }
 
-    $scope.chartPoints.push($scope.points);
+        ];
+
+ //   $scope.chartPoints.push($scope.points);
 
 
     
@@ -75,23 +125,29 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
 
 
     $scope.drawChart1 = function(){
-        var vis = d3.select('#visualisation'),
-        x = d3.scale.linear().range([ $scope.graph.margin.left, $scope.graph.width - $scope.graph.margin.right]);  
-        y = d3.scale.linear().range([$scope.graph.height - $scope.graph.margin.bottom, $scope.graph.margin.top]);
-        
-        x.domain(d3.extent($scope.points, function(d) {return d.x}));  
-        y.domain(d3.extent($scope.points, function(d) {return d.y}));
-        
+        var vis = d3.select('#visualisation');
+        var x = d3.scale.linear().range([ $scope.graph.margin.left, $scope.graph.width - $scope.graph.margin.right]);  
+        var y = d3.scale.linear().range([$scope.graph.height - $scope.graph.margin.bottom, $scope.graph.margin.top]);
+
+        $scope.chartPoints.forEach(function(l) {
+            var myData = l.points ? l.points : [];
+            x.domain(d3.extent(myData, function(d) {return d.x}));  
+            y.domain(d3.extent(myData, function(d) {return d.y}));
+        });
+
         $scope.lineFunc = d3.svg.line()
           .x(function(d) {return x(d.x);})
           .y(function(d) {return y(d.y);})
           .interpolate('linear');
           
-    
+          var y_max = x.domain().slice(-1)[0]
+
           xAxis = d3.svg.axis()
           .scale(x)
+          .tickValues(d3.range(1,y_max+1,2))
           .tickSize(2)
-          .tickSubdivide(true),
+          .tickSubdivide(2);
+
         yAxis = d3.svg.axis()
           .scale(y)
           .tickSize(2)
@@ -108,7 +164,7 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
             "translate(" + ($scope.graph.width/2) + " ," + 
                            ($scope.graph.height) + ")")
       .style("text-anchor", "middle")
-      .text("Date");
+      .text("Days out");
 
     vis.append('svg:g')
       .attr('class', 'y axis')
@@ -121,14 +177,52 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
       .attr("x",0 - ($scope.graph.height / 2))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
-      .text("Value");      
+      .text("Return to Date");      
+
+      var focus = vis.append('g')
+  .attr('class', 'focus')
+  .style('display', 'none');
+focus.append('circle').attr('r', 4.5);
+focus.append('text').attr('x', 9).attr('dy', '0.35em');
+
+
+
+
+vis.append('rect')
+.attr('class', 'overlay')
+.style('fill', 'none')
+.style('pointer-events', 'all')
+.attr('width', $scope.graph.width)
+.attr('height', $scope.graph.height)
+.on('mouseover', ()=> focus.style('display', 'block'))
+.on('mouseleave', () =>  focus.style('display', 'none'))
+.on('mousemove', function () { 
+    var temp = $scope.chartPoints[0];
+    var data = temp.points;
+  var x0 = x.invert(d3.mouse(this)[0]);
+
+  var i = d3.bisector(d=>d.x).left(data , x0, 1);
+  var d0 = data[i - 1];
+  var d1 = data[i];
+  var d = x0 - d0.x > d1.x - x0 ? d1 : d0;
+
+  focus.attr("transform", `translate(${x(d.x)}, ${y(d.y)})`);
+  focus.select("text").text(d.y);
+});
+
 
      $scope.chartPoints.forEach(function(l) {
+
+        var data = l.points ? l.points : [];
+
         vis.append('svg:path')
-        .attr('d', $scope.lineFunc(l.points ? l.points : []))
+        .attr('d', $scope.lineFunc(data))
         .attr('stroke', l.color)
         .attr('stroke-width', 2)
-        .attr('fill', 'none');
+        .attr('fill', 'none')
+      
+        
+      
       });
     
     

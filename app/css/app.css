@@ -75,3 +75,12 @@ select, textarea {
     left: 209px;
     background-color: #272b30;
 }
+
+.plot{
+    fill: #fff;
+    }
+
+    .focus circle {
+        fill: none;
+        stroke: skyblue;
+      }
