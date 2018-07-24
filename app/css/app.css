@@ -83,4 +83,7 @@ select, textarea {
     .focus circle {
         fill: none;
         stroke: skyblue;
+        white-space: pre-wrap;
       }
+
+      .newline {white-space: pre-wrap}

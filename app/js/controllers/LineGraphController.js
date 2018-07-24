@@ -195,9 +195,12 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
 
       var focus = vis.append('g')
       .attr('class', 'focus')
-      .style('display', 'none');
-      focus.append('circle').attr('r', 4.5);
+      .style('display', 'none')
+      .style('background-color', 'red');
+      focus.append('circle').attr('r', 6.5);
       focus.append('text').attr('x', 9).attr('dy', '0.35em');
+      
+
 
       var k = 0;
      $scope.chartPoints.forEach(function(l) {
@@ -240,9 +243,16 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
     var d = x0 - d0.x > d1.x - x0 ? d1 : d0;
     
     focus.attr("transform", `translate(${x(d.x)}, ${y(d.y)})`);
-    focus.select("text").text(d.y);
 
-      }
+/*    focus.select("text").text('Days out: ' + d.x ).append("tspan").attr("x", 9).attr("y", 15).attr("dy", "0.35em")
+    .text('Returns: ' + d.x ).append("tspan").attr("x", 9).attr("y", 30).attr("dy", "0.35em")
+    .text('Year: ' + d.x )
+    ;
+    */
+   focus.select("text").text('Days out: ' + d.x ).append("tspan").attr("x", 9).attr("y", 15).attr("dy", "0.35em")
+    .text('Returns: ' + d.y )
+
+     }
     
 /*
   vis.append('svg:path')
