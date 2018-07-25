@@ -4,8 +4,8 @@
 eventsApp.controller('LineGraphController', function LineGraphController($scope)
 {
     $scope.graph = {
-        'width': 600,
-        'height': 300,
+        'width': 800,
+        'height': 500,
         margin: {
             top: 20,
             right: 20,
@@ -121,7 +121,9 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
     
  angular.element(document).ready(function () {
     //$scope.drawChart1();
-
+    //var svg = d3.select("svg");
+//svg.selectAll("*").remove();
+    d3.selectAll("svg > *").remove();
     $scope.drawChart1();
 });
 
@@ -137,11 +139,13 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
             //x.domain(d3.extent(myData, function(d) {return d.x}));  
             //y.domain(d3.extent(myData, function(d) {return d.y}));
 
-            x.domain([
+        /*    x.domain([
                 d3.min($scope.chartPoints, function(c){return d3.min(c.points, function(v){return v.x})}),
                 d3.max($scope.chartPoints, function(c){return d3.max(c.points, function(v){return v.x})}),
 
             ])
+*/
+        x.domain([0,91])
 
             y.domain([
                 d3.min($scope.chartPoints, function(c){return d3.min(c.points, function(v){return v.y})}),
@@ -152,9 +156,10 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
         $scope.lineFunc = d3.svg.line()
           .x(function(d) {return x(d.x);})
           .y(function(d) {return y(d.y);})
-          .interpolate('linear');
+          .interpolate('basis');
           
-          var y_max = x.domain().slice(-1)[0]
+         // var y_max = x.domain().slice(-1)[0]
+         var y_max = 90+1;
 
           xAxis = d3.svg.axis()
           .scale(x)
@@ -166,6 +171,7 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
           .scale(y)
           .tickSize(2)
           .orient('left')
+          .innerTickSize(-$scope.graph.width)
           .tickSubdivide(true);
     
           vis.append('svg:g')
@@ -198,7 +204,8 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
       .style('display', 'none')
       .style('background-color', 'red');
       focus.append('circle').attr('r', 6.5);
-      focus.append('text').attr('x', 9).attr('dy', '0.35em');
+      focus.append('rect').attr('x', 9).attr('y', -20).attr('width', 100).attr('height', 100).attr('fill-opacity', '.2');
+      focus.append('text').attr('x', 25).attr('dy', '0.35em');
       
 
 
@@ -212,18 +219,31 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
         .attr('d', $scope.lineFunc(data))
         .attr("id", "myPath" + k)
         .attr('stroke', l.color)
-        .attr('stroke-width', 2)
+        .attr('stroke-width', 1.5)
         .attr('fill', 'none')
-        .on('mouseover', ()=> focus.style('display', 'block'))
-        .on('mouseleave', () =>  focus.style('display', 'none'))
-        .on("mousemove", mMove)
+        .on('mouseover', fnMouseOver)
+        .on('mouseleave', fnMouseLeave)
+        .on("mousemove", fnMouseMove)
         .append("title").attr("mydata", JSON.stringify(data));
       
        
 
       });
-    
-    function mMove(){
+      function fnMouseOver()
+      {
+          focus.style('display', 'block');
+          focus.style('border', '1px solid black');
+          focus.style('border-radius', '4px');
+          this.attributes["stroke-width"].value = 4;
+      }
+
+      function fnMouseLeave() {
+          focus.style('display', 'none');
+          this.attributes["stroke-width"].value = 1.5;
+      }
+
+      function fnMouseMove()
+    {
         var m = d3.mouse(this);
         
     console.log(m);
@@ -249,7 +269,7 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
     .text('Year: ' + d.x )
     ;
     */
-   focus.select("text").text('Days out: ' + d.x ).append("tspan").attr("x", 9).attr("y", 15).attr("dy", "0.35em")
+   focus.select("text").text('Days out: ' + d.x ).append("tspan").attr("x", 25).attr("y", 15).attr("dy", "0.35em")
     .text('Returns: ' + d.y )
 
      }
