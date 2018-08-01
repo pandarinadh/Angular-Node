@@ -57,23 +57,23 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
                       'y': 35
                   },
                   {
-                      'x': 7,
+                      'x': 10,
                       'y': 45
                   },
                     {
-                        'x': 9,
+                        'x': 38,
                         'y': 110
                     },
                     {
-                        'x': 11,
+                        'x': 60,
                         'y': 210
                     },
                     {
-                        'x': 13,
+                        'x': 80,
                         'y': 310
                     },
                      {
-                         'x': 15,
+                         'x': 88,
                          'y': 510
                      }
               ]
@@ -87,27 +87,27 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
                       'y': 44
                   },
                   {
-                      'x': 3,
+                      'x': 10,
                       'y': 68
                   },
                   {
-                      'x': 7,
+                      'x': 34,
                       'y': 96
                   },
                     {
-                        'x': 9,
+                        'x': 55,
                         'y': 150
                     },
                     {
-                        'x': 11,
+                        'x': 77,
                         'y': 242
                     },
                     {
-                        'x': 13,
+                        'x': 88,
                         'y': 342
                     },
                      {
-                         'x': 15,
+                         'x': 87,
                          'y': 476
                      }
               ]
@@ -167,12 +167,19 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
           .tickSize(2)
           .tickSubdivide(2);
 
+          var ticks = y.ticks(),
+            lastTick = ticks[ticks.length - 1],
+            newLastTick = lastTick + (ticks[1] - ticks[0]);
+            if (lastTick < y.domain()[1]) {
+                ticks.push(newLastTick);
+            }
+
         yAxis = d3.svg.axis()
           .scale(y)
           .tickSize(2)
           .orient('left')
-          .innerTickSize(-$scope.graph.width)
-          .tickSubdivide(true);
+          .innerTickSize(-[$scope.graph.width - $scope.graph.margin.right - $scope.graph.margin.left])
+          .tickValues(ticks);
     
           vis.append('svg:g')
       .attr('class', 'x axis')
@@ -199,16 +206,6 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
       .style("text-anchor", "middle")
       .text("Return to Date");      
 
-      var focus = vis.append('g')
-      .attr('class', 'focus')
-      .style('display', 'none')
-      .style('background-color', 'red');
-      focus.append('circle').attr('r', 6.5);
-      focus.append('rect').attr('x', 9).attr('y', -20).attr('width', 100).attr('height', 100).attr('fill-opacity', '.2');
-      focus.append('text').attr('x', 25).attr('dy', '0.35em');
-      
-
-
       var k = 0;
      $scope.chartPoints.forEach(function(l) {
 
@@ -219,16 +216,46 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
         .attr('d', $scope.lineFunc(data))
         .attr("id", "myPath" + k)
         .attr('stroke', l.color)
-        .attr('stroke-width', 1.5)
+        .attr('stroke-width', 3)
         .attr('fill', 'none')
         .on('mouseover', fnMouseOver)
         .on('mouseleave', fnMouseLeave)
         .on("mousemove", fnMouseMove)
+      //  .on("mouseenter", fnMouseEnter)
         .append("title").attr("mydata", JSON.stringify(data));
       
        
 
       });
+
+      var focus = vis.append('g')
+      .attr('class', 'focus')
+      .style('display', 'none')
+      .style('background-color', 'red')
+      
+      ;
+
+      focus.append('circle').attr('r', 6.5);
+      focus.append('rect').transition()
+      .ease('elastic').attr('x', 9).attr('y', -20).attr('width', 100).attr('height', 100)
+      .attr('stroke-width', '3').attr('stroke', 'rgb(0,0,0)')
+      .attr('fill', 'white').attr('fill-opacity', '0.1')
+      .attr('stroke-opacity', '.9').attr('rx', '15').attr('ry', '15').style("position", 'absolute')
+      ;
+      
+
+      focus.append('text').attr('x', 25).attr('dy', '0.35em');
+
+      function fnMouseEnter()
+      {
+          var myThis = this;
+
+        if (this !== d3.select('rect').node()) {
+            
+            myThis.parentElement.appendChild(this);
+        }
+      }
+
       function fnMouseOver()
       {
           focus.style('display', 'block');
@@ -238,8 +265,8 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
       }
 
       function fnMouseLeave() {
-          focus.style('display', 'none');
-          this.attributes["stroke-width"].value = 1.5;
+       //   focus.style('display', 'none');
+          this.attributes["stroke-width"].value = 3;
       }
 
       function fnMouseMove()
