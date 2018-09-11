@@ -85,16 +85,22 @@ select, textarea {
         stroke: skyblue;
         white-space: pre-wrap;
       }
-
+      .transient {
+        fill: #D9C7C7;
+        stroke: #97A676;
+        stroke-width: 5px;
+    }
       .newline {white-space: pre-wrap}
 
-      div.tooltip {   
+      .tooltip {   
         position: absolute;           
         text-align: center;           
         width: 60px;                  
         height: 28px;                 
-        padding: 2px;             
-        font: 12px sans-serif;        
+        z-index: 10;
+        padding: 20px;             
+        font: 12px sans-serif;    
+        display: block;    
         background: lightsteelblue;   
         border: 0px;      
         border-radius: 8px;           

@@ -131,6 +131,24 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
 
 
     $scope.drawChart1 = function(){
+
+       var tooltip = d3.select("body")
+	.append("div")
+	.style("position", "absolute")
+    .style("z-index", "10")
+    .style("color", "black")
+    .style("border", "0px")
+    .style("border-color", "black")
+    .style("background", "lightsteelblue")	
+    .style("border-radius", "8px")	
+    .style("display", "none")
+    .style("padding", "10px")
+    .text("a simple tooltip");
+
+   /* var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")*/
+    
         var vis = d3.select('#visualisation');
         var x = d3.scale.linear().range([ $scope.graph.margin.left, $scope.graph.width - $scope.graph.margin.right]);  
         var y = d3.scale.linear().range([$scope.graph.height - $scope.graph.margin.bottom, $scope.graph.margin.top]);
@@ -218,13 +236,14 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
         .attr('stroke', l.color)
         .attr('stroke-width', 3)
         .attr('fill', 'none')
-        .on('mouseover', fnMouseOver)
+        .on("mouseover", function(){return tooltip.style("display", "block");})
+	.on("mousemove", fnMouseMove)
+	.on("mouseout", function(){return tooltip.style("display", "none")})
+       /* .on('mouseover', fnMouseOver)
         .on('mouseleave', fnMouseLeave)
-        .on("mousemove", fnMouseMove)
+        .on("mousemove", fnMouseMove)*/
       //  .on("mouseenter", fnMouseEnter)
         .append("title").attr("mydata", JSON.stringify(data));
-      
-       
 
       });
 
@@ -265,12 +284,15 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
       }
 
       function fnMouseLeave() {
-       //   focus.style('display', 'none');
+          focus.style('display', 'none');
           this.attributes["stroke-width"].value = 3;
       }
 
       function fnMouseMove()
     {
+
+       
+
         var m = d3.mouse(this);
         
     console.log(m);
@@ -296,8 +318,10 @@ eventsApp.controller('LineGraphController', function LineGraphController($scope)
     .text('Year: ' + d.x )
     ;
     */
-   focus.select("text").text('Days out: ' + d.x ).append("tspan").attr("x", 25).attr("y", 15).attr("dy", "0.35em")
-    .text('Returns: ' + d.y )
+  /* focus.select("text").text('Days out: ' + d.x ).append("tspan").attr("x", 25).attr("y", 15).attr("dy", "0.35em")
+    .text('Returns: ' + d.y )*/
+    tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");
+    tooltip.html('Days out: ' + d.x + '<br /> Returns: ' + d.y);
 
      }
     
